@@ -29,7 +29,7 @@ def agregar_muestra(nombre, especializacion): #CREATE
     print(f"❌ Error al agregar al doctor: {e}")
 
 def leer_muestras():  # READ
-    print("\n--- Listado de Muestras Registradas ---")
+    print("\n--- Listado de Doctores Registrados ---")
     try:
         # .stream() trae los datos iterables
         docs = db.collection('doctores').order_by('fecha_registro').stream()
@@ -55,7 +55,7 @@ def actualizar_muestra(doc_id, nuevos_datos):  # UPDATE
         print(f"❌ Error al actualizar (¿Seguro que el ID existe?):{e}")
 def borrar_muestra(doc_id): #DELETE
     try:
-        doc_ref = db.collection('doctor').document(doc_id)
+        doc_ref = db.collection('doctores').document(doc_id)
         doc_ref.delete()
         print(f"🔴 Doctor {doc_id} eliminado definitivamente.")
     except Exception as e:
