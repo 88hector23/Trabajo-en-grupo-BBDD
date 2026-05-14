@@ -13,25 +13,25 @@ print("✅ Conexión a Firestore establecida correctamente.")
 def agregar_muestra(nombre, descripcion): #CREATE
  try:
  # Los datos se preparan como un Diccionario (JSON)
-    datos_muestra = {
+    datos_doctor = {
         'nombre': nombre,
-        'descripcion': descripcion,
+        'especilizacion': especilizacion,
         'fecha_registro': datetime.now(timezone.utc),
         'estado': 'pendiente' # Añadimos un estado por defecto
     }
 
  # .add() genera un ID automático y devuelve una tupla (tiempo, referencia_documento)
-    update_time, doc_ref = db.collection('muestras').add(datos_muestra)
+    update_time, doc_ref = db.collection('doctores').add(datos_doctor)
     print(f"🟢 Muestra agregada con éxito. ID asignado: {doc_ref.id}")
 
  except Exception as e:
-    print(f"❌ Error al agregar la muestra: {e}")
+    print(f"❌ Error al agregar al doctor: {e}")
 
 def leer_muestras():  # READ
     print("\n--- Listado de Muestras Registradas ---")
     try:
         # .stream() trae los datos iterables
-        docs = db.collection('muestras').order_by('fecha_registro').stream()
+        docs = db.collection('doctores').order_by('fecha_registro').stream()
         contador = 0
 
         for doc in docs:
@@ -40,45 +40,45 @@ def leer_muestras():  # READ
             contador += 1
 
         if contador == 0:
-            print("No hay muestras registradas actualmente.")
+            print("No hay doctores registrados actualmente.")
 
     except Exception as e:
-        print(f"❌ Error al leer las muestras: {e}")
+        print(f"❌ Error al leer los doctores: {e}")
 
 def actualizar_muestra(doc_id, nuevos_datos):  # UPDATE
     try:
-        doc_ref = db.collection('muestras').document(doc_id)
+        doc_ref = db.collection('doctores').document(doc_id)
         doc_ref.update(nuevos_datos)
-        print(f"🟡 Muestra {doc_id} actualizada correctamente.")
+        print(f"🟡 Doctor {doc_id} actualizado correctamente.")
     except Exception as e:
         print(f"❌ Error al actualizar (¿Seguro que el ID existe?):{e}")
 def borrar_muestra(doc_id): #DELETE
     try:
-        doc_ref = db.collection('muestras').document(doc_id)
+        doc_ref = db.collection('doctor').document(doc_id)
         doc_ref.delete()
-        print(f"🔴 Muestra {doc_id} eliminada definitivamente.")
+        print(f"🔴 Doctor {doc_id} eliminado definitivamente.")
     except Exception as e:
         print(f"❌ Error al intentar borrar: {e}")
 
 def menu():
     while True:
         print("\n" + "="*30)
-        print("🔬 GESTOR DE LABORATORIO V1")
+        print("🔬 GESTOR DEL HOSPITAL")
         print("="*30)
-        print("1. Agregar nueva muestra")
-        print("2. Listar todas las muestras")
-        print("3. Cambiar estado a 'procesada'")
-        print("4. Borrar una muestra")
+        print("1. Agregar doctor")
+        print("2. Lista de doctores")
+        print("3. Actualizar doctor")
+        print("4. Eliminar doctor")
         print("5. Salir")
 
         opcion = input("\nSeleccione una opción (1-5): ")
         if opcion == "1":
-            nombre = input("Ingrese el nombre de la muestra: ").strip()
+            nombre = input("Ingrese el nombre del doctor: ").strip()
  # Validación básica
             if not nombre:
                 print("⚠️ El nombre no puede estar vacío.")
                 continue
-            descripcion = input("Ingrese la descripción: ")
+            descripcion = input("Ingrese especialización: ")
             agregar_muestra(nombre, descripcion)
 
         elif opcion == "2":
@@ -86,11 +86,11 @@ def menu():
 
         elif opcion == "3":
             leer_muestras() # Mostramos la lista para que el alumno copie el ID
-            doc_id = input("\nCopie y pegue el ID de la muestra a actualizar: ").strip()
+            doc_id = input("\nCopie y pegue el ID del doctor a actualizar: ").strip()
             actualizar_muestra(doc_id, {'estado': 'procesada'})
         elif opcion == "4":
             leer_muestras()
-            doc_id = input("\nCopie y pegue el ID de la muestra a BORRAR: ").strip()
+            doc_id = input("\nCopie y pegue el ID del doctor a borrar: ").strip()
             confirmacion = input("¿Está seguro? (s/n): ").lower()
             if confirmacion == 's':
                 borrar_muestra(doc_id)
