@@ -79,7 +79,7 @@ def menu():
             if not nombre:
                 print("⚠️ El nombre no puede estar vacío.")
                 continue
-            descripcion = input("Ingrese especialización: ")
+            especializacion = input("Ingrese especialización: ")
             agregar_muestra(nombre, especializacion)
 
         elif opcion == "2":
