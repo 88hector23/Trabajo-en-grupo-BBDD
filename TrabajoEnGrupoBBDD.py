@@ -2,167 +2,269 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from datetime import datetime, timezone
 
-# Usamos la ruta completa para que no haya pérdida
+# =========================
+# CONEXIÓN A FIREBASE
+# =========================
+
 ruta_llave = r"C:\Users\hecto\PyCharmMiscProject\trabajo-en-grupo-bbdd-firebase-adminsdk-fbsvc-febdc95cfe.json"
 
 cred = credentials.Certificate(ruta_llave)
 firebase_admin.initialize_app(cred)
+
 db = firestore.client()
 
 print("✅ Conexión a Firestore establecida correctamente.")
 
-def agregar_muestra(nombre, especializacion): #CREATE
- try:
- # Los datos se preparan como un Diccionario (JSON)
-    datos_doctor = {
-        'nombre': nombre,
-        'especializacion': especializacion,
-        'fecha_registro': datetime.now(timezone.utc),
-        'estado': 'pendiente' # Añadimos un estado por defecto
-    }
 
- # .add() genera un ID automático y devuelve una tupla (tiempo, referencia_documento)
-    update_time, doc_ref = db.collection('doctores').add(datos_doctor)
-    print(f"🟢 Doctor agregado con éxito. ID asignado: {doc_ref.id}")
+# =========================
+# CRUD DOCTORES
+# =========================
 
- except Exception as e:
-    print(f"❌ Error al agregar al doctor: {e}")
-
-def leer_muestras():  # READ
-    print("\n--- Listado de Doctores Registrados ---")
+def agregar_doctor(nombre, especializacion):
     try:
-        # .stream() trae los datos iterables
+        datos_doctor = {
+            'nombre': nombre,
+            'especializacion': especializacion,
+            'fecha_registro': datetime.now(timezone.utc),
+            'estado': 'pendiente'
+        }
+
+        update_time, doc_ref = db.collection('doctores').add(datos_doctor)
+
+        print(f"🟢 Doctor agregado con éxito. ID: {doc_ref.id}")
+
+    except Exception as e:
+        print(f"❌ Error al agregar doctor: {e}")
+
+
+def leer_doctores():
+    print("\n--- LISTA DE DOCTORES ---")
+
+    try:
         docs = db.collection('doctores').order_by('fecha_registro').stream()
+
         contador = 0
 
         for doc in docs:
-            data = doc.to_dict()  # Convierte el documento de Firestore a un Diccionario de Python
-            print(f"ID: {doc.id} | Nombre: {data.get('nombre', 'N/A')} | Estado: {data.get('estado', 'N/A')}")
+            data = doc.to_dict()
+
+            print(
+                f"ID: {doc.id} | "
+                f"Nombre: {data.get('nombre', 'N/A')} | "
+                f"Especialización: {data.get('especializacion', 'N/A')} | "
+                f"Estado: {data.get('estado', 'N/A')}"
+            )
+
             contador += 1
 
         if contador == 0:
-            print("No hay doctores registrados actualmente.")
+            print("⚠️ No hay doctores registrados.")
 
     except Exception as e:
-        print(f"❌ Error al leer los doctores: {e}")
+        print(f"❌ Error al leer doctores: {e}")
 
-def actualizar_muestra(doc_id, nuevos_datos):  # UPDATE
+
+def actualizar_doctor(doc_id, nuevos_datos):
     try:
         doc_ref = db.collection('doctores').document(doc_id)
-        doc_ref.update(nuevos_datos)
-        print(f"🟡 Doctor {doc_id} actualizado correctamente.")
+
+        if doc_ref.get().exists:
+            doc_ref.update(nuevos_datos)
+            print(f"🟡 Doctor {doc_id} actualizado correctamente.")
+        else:
+            print("⚠️ El doctor no existe.")
+
     except Exception as e:
-        print(f"❌ Error al actualizar (¿Seguro que el ID existe?):{e}")
-def borrar_muestra(doc_id): #DELETE
+        print(f"❌ Error al actualizar doctor: {e}")
+
+
+def borrar_doctor(doc_id):
     try:
         doc_ref = db.collection('doctores').document(doc_id)
-        doc_ref.delete()
-        print(f"🔴 Doctor {doc_id} eliminado definitivamente.")
+
+        if doc_ref.get().exists:
+            doc_ref.delete()
+            print(f"🔴 Doctor {doc_id} eliminado correctamente.")
+        else:
+            print("⚠️ El doctor no existe.")
+
     except Exception as e:
-        print(f"❌ Error al intentar borrar: {e}")
+        print(f"❌ Error al borrar doctor: {e}")
 
-def agregar_paciente(nombre, DNI): #CREATE
- try:
- # Los datos se preparan como un Diccionario (JSON)
-    datos_paciente = {
-        'nombre': nombre,
-        'DNI': DNI,
-        'fecha_registro': datetime.now(timezone.utc),
-        'estado': 'pendiente' # Añadimos un estado por defecto
-    }
 
- # .add() genera un ID automático y devuelve una tupla (tiempo, referencia_documento)
-    update_time, doc_ref = db.collection('pacientes').add(datos_paciente)
-    print(f"🟢 Paciente agregado con éxito. ID asignado: {doc_ref.id}")
+# =========================
+# CRUD PACIENTES
+# =========================
 
- except Exception as e:
-    print(f"❌ Error al agregar al paciente: {e}")
-  
- def leer_pacientes():  # READ
-    print("\n--- Listado de Pacientes Registrados ---")
+def agregar_paciente(nombre, dni):
     try:
-        # .stream() trae los datos iterables
+        datos_paciente = {
+            'nombre': nombre,
+            'DNI': dni,
+            'fecha_registro': datetime.now(timezone.utc),
+            'estado': 'pendiente'
+        }
+
+        update_time, doc_ref = db.collection('pacientes').add(datos_paciente)
+
+        print(f"🟢 Paciente agregado con éxito. ID: {doc_ref.id}")
+
+    except Exception as e:
+        print(f"❌ Error al agregar paciente: {e}")
+
+
+def leer_pacientes():
+    print("\n--- LISTA DE PACIENTES ---")
+
+    try:
         docs = db.collection('pacientes').order_by('fecha_registro').stream()
+
         contador = 0
 
         for doc in docs:
-            data = doc.to_dict()  # Convierte el documento de Firestore a un Diccionario de Python
-            print(f"ID: {doc.id} | Nombre: {data.get('nombre', 'N/A')} | Estado: {data.get('estado', 'N/A')}")
+            data = doc.to_dict()
+
+            print(
+                f"ID: {doc.id} | "
+                f"Nombre: {data.get('nombre', 'N/A')} | "
+                f"DNI: {data.get('DNI', 'N/A')} | "
+                f"Estado: {data.get('estado', 'N/A')}"
+            )
+
             contador += 1
 
         if contador == 0:
-            print("No hay pacientes registrados actualmente.")
+            print("⚠️ No hay pacientes registrados.")
 
     except Exception as e:
-        print(f"❌ Error al leer los doctores: {e}")
- def actualizar_pacientes(doc_id, nuevos_datos):  # UPDATE
+        print(f"❌ Error al leer pacientes: {e}")
+
+
+def actualizar_paciente(doc_id, nuevos_datos):
     try:
         doc_ref = db.collection('pacientes').document(doc_id)
-        doc_ref.update(nuevos_datos)
-        print(f"🟡 Paciente {doc_id} actualizado correctamente.")
+
+        if doc_ref.get().exists:
+            doc_ref.update(nuevos_datos)
+            print(f"🟡 Paciente {doc_id} actualizado correctamente.")
+        else:
+            print("⚠️ El paciente no existe.")
+
     except Exception as e:
-        print(f"❌ Error al actualizar (¿Seguro que el ID existe?):{e}")
+        print(f"❌ Error al actualizar paciente: {e}")
+
+
+# =========================
+# MENÚ PRINCIPAL
+# =========================
 
 def menu():
+
     while True:
-        print("\n" + "="*30)
-        print("🔬 GESTOR DEL HOSPITAL")
-        print("="*30)
+
+        print("\n" + "=" * 30)
+        print("🏥 GESTOR DEL HOSPITAL")
+        print("=" * 30)
+
         print("1. Agregar doctor")
-        print("2. Lista de doctores")
+        print("2. Listar doctores")
         print("3. Actualizar doctor")
         print("4. Eliminar doctor")
         print("5. Agregar paciente")
-        print("6. Lista de pacientes")
-        print("7. Actualizar pacientes")
+        print("6. Listar pacientes")
+        print("7. Actualizar paciente")
         print("8. Salir")
 
-        opcion = input("\nSeleccione una opción (1-5): ")
+        opcion = input("\nSeleccione una opción: ").strip()
+
+        # =========================
+        # DOCTORES
+        # =========================
+
         if opcion == "1":
-            nombre = input("Ingrese el nombre del doctor: ").strip()
- # Validación básica
+
+            nombre = input("Nombre del doctor: ").strip()
+
             if not nombre:
                 print("⚠️ El nombre no puede estar vacío.")
                 continue
-            especializacion = input("Ingrese especialización: ")
-            agregar_muestra(nombre, especializacion)
+
+            especializacion = input("Especialización: ").strip()
+
+            agregar_doctor(nombre, especializacion)
 
         elif opcion == "2":
-            leer_muestras()
+
+            leer_doctores()
 
         elif opcion == "3":
-            leer_muestras() # Mostramos la lista para que el alumno copie el ID
-            doc_id = input("\nCopie y pegue el ID del doctor a actualizar: ").strip()
-            actualizar_muestra(doc_id, {'estado': 'procesada'})
+
+            leer_doctores()
+
+            doc_id = input("\nID del doctor a actualizar: ").strip()
+
+            nuevo_estado = input("Nuevo estado: ").strip()
+
+            actualizar_doctor(doc_id, {
+                'estado': nuevo_estado
+            })
+
         elif opcion == "4":
-            leer_muestras()
-            doc_id = input("\nCopie y pegue el ID del doctor a borrar: ").strip()
-            confirmacion = input("¿Está seguro? (s/n): ").lower()
-            if confirmacion == 's':
-                borrar_muestra(doc_id)
+
+            leer_doctores()
+
+            doc_id = input("\nID del doctor a borrar: ").strip()
+
+            confirmacion = input("¿Seguro? (s/n): ").lower()
+
+            if confirmacion == "s":
+                borrar_doctor(doc_id)
+
+        # =========================
+        # PACIENTES
+        # =========================
+
         elif opcion == "5":
-            nombre = input("Ingrese el nombre del paciente: ").strip()
- # Validación básica
+
+            nombre = input("Nombre del paciente: ").strip()
+
             if not nombre:
                 print("⚠️ El nombre no puede estar vacío.")
                 continue
-            DNI = input("Ingrese DNI: ")
-            agregar_muestra(nombre, DNI)
-         elif opcion == "6":
+
+            dni = input("DNI: ").strip()
+
+            agregar_paciente(nombre, dni)
+
+        elif opcion == "6":
+
             leer_pacientes()
-          
-          elif opcion == "7":
-            leer_pacientes() # Mostramos la lista para que el alumno copie el ID
-            doc_id = input("\nCopie y pegue el ID del paciente a actualizar: ").strip()
-            actualizar_pacientes(doc_id, {'estado': 'procesada'})
-          
+
+        elif opcion == "7":
+
+            leer_pacientes()
+
+            doc_id = input("\nID del paciente a actualizar: ").strip()
+
+            nuevo_estado = input("Nuevo estado: ").strip()
+
+            actualizar_paciente(doc_id, {
+                'estado': nuevo_estado
+            })
+
         elif opcion == "8":
-            print("Saliendo del gestor...")
-        break
-    else:
-            print("⚠️ Opción no válida. Intente nuevamente.")
+
+            print("👋 Saliendo del sistema...")
+            break
+
+        else:
+
+            print("⚠️ Opción no válida.")
 
 
-# Este bloque asegura que el menú solo se ejecute si corremos el archivo directamente
+# =========================
+# EJECUCIÓN
+# =========================
+
 if __name__ == "__main__":
     menu()
