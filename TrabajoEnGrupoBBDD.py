@@ -16,7 +16,7 @@ def agregar_muestra(nombre, descripcion): #CREATE
  # Los datos se preparan como un Diccionario (JSON)
     datos_doctor = {
         'nombre': nombre,
-        'especilizacion': especilizacion,
+        'especializacion': especializacion,
         'fecha_registro': datetime.now(timezone.utc),
         'estado': 'pendiente' # Añadimos un estado por defecto
     }
