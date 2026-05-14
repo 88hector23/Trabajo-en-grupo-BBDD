@@ -2,12 +2,13 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from datetime import datetime, timezone
 
-# 1. Autenticación usando el archivo JSON
-cred = credentials.Certificate('trabajo-en-grupo-bbdd-firebase-adminsdk-fbsvc-febdc95cfe.json')
-firebase_admin.initialize_app(cred)
+# Usamos la ruta completa para que no haya pérdida
+ruta_llave = r"C:\Users\hecto\PyCharmMiscProject\trabajo-en-grupo-bbdd-firebase-adminsdk-fbsvc-febdc95cfe.json"
 
-# 2. Instanciar el cliente de Firestore
+cred = credentials.Certificate(ruta_llave)
+firebase_admin.initialize_app(cred)
 db = firestore.client()
+
 print("✅ Conexión a Firestore establecida correctamente.")
 
 def agregar_muestra(nombre, descripcion): #CREATE
